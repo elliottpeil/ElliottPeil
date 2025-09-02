@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Instagram-Like Image Feed</title>
+<style>
+  :root {
+    --gap: 16px;
+    --min: 120px;
+    --border-radius: 8px;
+    --default-transition-timing-function: ease-in-out;
+    --default-transition-duration: 0.5s;
+    --tw-shadow: 0 0 transparent;
+    --tw-ring-shadow: 0 0 transparent;
+    --tw-blur: none;
+    --tw-backdrop-blur: none;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+
+  .feed {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: var(--gap);
+    padding: var(--gap);
+    max-width: 1200px;
+    margin: 0 auto;
+    transition: grid-template-columns 0.5s ease-in-out;
+  }
+
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .control-btn {
+    border: none;
+    background: none;
+    color: #000;
+    cursor: pointer;
+    font-weight:200;
+    font-size: 2.2rem;
+    font-family: 'Helvetica', Arial, sans-serif;
+    transition: color 0.3s;
+  }
+  .control-btn:hover {
+    color: #333;
+  }
+
+  .post {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* square */
+    cursor: pointer;
+    background: #fff;
+    border-radius: var(--border-radius);
+    transition: transform 0.5s ease-in-out, width 0.5s ease-in-out, height 0.5s ease-in-out, left 0.5s ease-in-out, top 0.5s ease-in-out;
+  }
+
+  .post:hover {
+    transform: scale(1.02);
+  }
+
+  .post img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    border-radius: var(--border-radius);
+    transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+    /* Feather mask for feed images */
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%),
+      linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    -webkit-mask-composite: intersect;
+    mask-image:
+      linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%),
+      linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    mask-composite: intersect;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed; inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.85);
+    z-index: 999;
+    touch-action: none; /* Prevent default touch behavior */
+  }
+  .lightbox.open { display: flex; }
+  
+  .lightbox-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+  }
+  
+  .viewer {
+    position: relative;
+    width: min(60vw, 600px);
+    aspect-ratio: 1 / 1;
+    background: #fff;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .viewer img, .viewer video {
+    max-width: 100%; 
+    max-height: 100%;
+    object-fit: contain;
+    /* No feathering in lightbox viewer */
+  }
+  
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: linear-gradient(to bottom, rgba(255, 0, 0, 0.15), rgba(255, 0, 0, 0.07))
+    ;
+    color: #ff000080;
+    padding: 8px 12px;
+    font-size: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  .close:hover {
+    background: rgba(255, 0, 0, 0.2);;
+    transform: scale(1.1);
+  }
+  
+  .nav-btn {
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    width: 50px; /* Nav button width - change this value to adjust button width */
+    height: min(60vw, 600px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
+  }
+  
+  .nav-btn:hover {
+    color: rgba(255, 255, 255, .6);
+    transform: scale(1.02);
+
+  }
+  
+  .nav-prev {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(255, 255, 255, 0.4));
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+  }
+  
+  .nav-next {
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.4), rgba(255, 255, 255, 0.4));
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .lightbox-container {
+      padding: 0 10px;
+    }
+    
+    .viewer {
+      width: min(70vw, 400px);
+    }
+    
+    .nav-btn {
+      width: 30px; /* Mobile nav button width - change this value to adjust mobile button width */
+      height: min(70vw, 400px);
+      font-size: 24px;
+    }
+    
+    .close {
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+      top: 5px;
+      right: 5px;
+    }
+  }
+
+  /* Touch feedback */
+  .nav-btn:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  
+</style>
+</head>
+<body>
+  <p style="text-align:center;margin: 20px 0 0;padding-top: 35px;padding-bottom: 20px;">
+    <a href="../index.html">&lt; Home</a>
+  </p>
+  <div class="controls">
+    <button class="control-btn" id="zoomBtn">+</button>
+  </div>
+  <div class="feed" id="feed"></div>
+
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-container">
+      <button class="nav-btn nav-prev" id="prevBtn">‹</button>
+      <div class="viewer">
+        <img id="lightImg" alt="" style="display:none;">
+        <video id="lightVideo" controls style="display:none;"></video>
+        <button class="close" id="closeBtn">✕</button>
+      </div>
+      <button class="nav-btn nav-next" id="nextBtn">›</button>
+    </div>
+  </div>
+<!-- Home link -->
+
+  
+<script>
+(() => {
+  let IMAGES = [
+    "../images/IMG_1759.jpg",
+    "../images/Layer%204.png",
+    "../images/IMG_1761.jpg",
+    "../images/IMG_1764.jpg",
+    "../images/IMG_1765.jpg",
+    "../images/IMG_1766.jpg",
+    "../images/IMG_1767.jpg",
+    "../images/GENISISEVE.png",
+    "../images/head.png",
+    "../images/IMG_1768.jpg",
+    "../images/IMG_1769.jpg",
+    "../images/IMG_1770.jpg",
+    "../images/IMG_1772.jpg",
+    "../images/jesus.png",
+    "../images/running.png",
+    "../images/IMG_1773.jpg",
+    "../images/IMG_1774.jpg",
+    "../images/IMG_1775.jpg",
+    "../images/IMG_1776.jpg",
+    "../images/IMG_1777.jpg",
+    "../images/IMG_1784.jpg",
+    "../images/IMG_1785.jpg",
+    "../images/IMG_1786.jpg",
+    "../images/IMG_1787.jpg",
+    "../images/IMG_1788.jpg",
+    "../images/IMG_1789.jpg",
+    "../images/IMG_1778.jpg",
+    "../images/IMG_1779.jpg",
+    "../images/IMG_1780.jpg",
+    "../images/IMG_1781.jpg",
+    "../images/IMG_1783.jpg",
+    "../images/!agricultur.png",
+    "../images/IMG_1762.jpg",
+    "../images/IMG_1763.jpg",
+    "../images/%24dtfgenes.png",
+    "../images/AEIR%2BBACK.png",
+    "../images/ANGEL2.png",
+    "../images/angel.png",
+    "../images/angel1.png",
+    "../images/angel3.png",
+    "../images/angel4.png",
+    "../images/angel6.png",
+    "../images/angel7.png",
+    "../images/eve%20ls.png",
+    "../images/angelarm.png",
+    "../images/angelback.png",
+    "../images/ANGELFRONT.png",
+    "../images/angelcolorgrade.png",
+    "../images/AZTSH.png",
+    "../images/IMG_1760.jpg",
+    "../images/chaos2back.png",
+    "../images/creatinggodfront.png",
+    "../images/divback.png",
+    "../images/divfront.png",
+    "../images/EDEN.png",
+    "../images/EDISON.png",
+    "../images/edison2.png",
+    "../images/emoji1.png",
+    "../images/emoji2.png",
+    "../images/emoji3.png",
+    "../images/emoji4.png",
+    "../images/emoji5.png",
+    "../images/emoji6.png",
+    "../images/emoji7.png",
+    "../images/emoji8.png",
+    "../images/emoji9.png",
+    "../images/fACE.png",
+    "../images/FAEROorb.png",
+    "../images/fiber%20lonbg%20sleeve%20insta.png",
+    "../images/horse.png",
+    "../images/hypercube1.png",
+    "../images/hypercubeMP3.png",
+    "../images/ijo%20simple%20raw.png",
+    "../images/infra.png",
+    "../images/lifepro%2Bback.png",
+    "../images/light.png",
+    "../images/medulla%20oblongotta.png",
+    "../images/plywood1.png",
+    "../images/plywood2.png",
+    "../images/rainbowshit.png",
+    "../images/superficial.png",
+  ];
+
+  const feed = document.getElementById('feed');
+  const lightbox = document.getElementById('lightbox');
+  const lightImg = document.getElementById('lightImg');
+  const lightVideo = document.getElementById('lightVideo');
+  const closeBtn = document.getElementById('closeBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const zoomBtn = document.getElementById('zoomBtn');
+  let currentIndex = 0;
+  let gridState = 'large'; // large (9), medium (6), small (3)
+  let direction = 'shrink'; // shrink or grow
+
+  // Touch/swipe handling
+  let touchStartX = 0;
+  let touchEndX = 0;
+  let isSwiping = false;
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        // Swiped left - next image
+        nextBtn.click();
+      } else {
+        // Swiped right - previous image
+        prevBtn.click();
+      }
+    }
+  }
+
+  lightbox.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    isSwiping = true;
+  }, { passive: true });
+
+  lightbox.addEventListener('touchmove', (e) => {
+    if (!isSwiping) return;
+    // Optional: Add visual feedback during swipe
+  }, { passive: true });
+
+  lightbox.addEventListener('touchend', (e) => {
+    if (!isSwiping) return;
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+    isSwiping = false;
+  }, { passive: true });
+
+  function updateGrid() {
+    let columns, minSize;
+    if (gridState === 'large') {
+      columns = 9;
+      minSize = 120;
+      zoomBtn.textContent = '+';
+    } else if (gridState === 'medium') {
+      columns = 6;
+      minSize = 180;
+      zoomBtn.textContent = direction === 'shrink' ? '+' : '<';
+    } else { // small
+      columns = 3;
+      minSize = 360;
+      zoomBtn.textContent = '<';
+    }
+    document.documentElement.style.setProperty('--min', `${minSize}px`);
+    feed.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+    renderFeed();
+  }
+
+  function renderFeed() {
+    feed.innerHTML = '';
+    IMAGES.forEach((src, index) => {
+      const post = document.createElement('div');
+      post.className = 'post';
+      
+      if (src.endsWith('.mov') || src.endsWith('.mp4')) {
+        const placeholder = document.createElement('div');
+        placeholder.style.cssText = 'position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#f0f0f0; color:#666;';
+        placeholder.innerHTML = '▶ Video';
+        post.appendChild(placeholder);
+      } else {
+        const img = document.createElement('img');
+        img.src = src;
+        img.loading = 'lazy';
+        post.appendChild(img);
+      }
+      
+      post.onclick = () => {
+        currentIndex = index;
+        openLightbox(src);
+      };
+      feed.appendChild(post);
+    });
+  }
+
+  function openLightbox(src) {
+    if (src.endsWith('.mov') || src.endsWith('.mp4')) {
+      lightImg.style.display = 'none';
+      lightVideo.style.display = 'block';
+      lightVideo.src = src;
+    } else {
+      lightVideo.style.display = 'none';
+      lightImg.style.display = 'block';
+      lightImg.src = src;
+    }
+    lightbox.classList.add('open');
+  }
+
+  function toggleGridSize() {
+    if (gridState === 'large' && direction === 'shrink') {
+      gridState = 'medium';
+    } else if (gridState === 'medium' && direction === 'shrink') {
+      gridState = 'small';
+      direction = 'grow';
+    } else if (gridState === 'small' && direction === 'grow') {
+      gridState = 'medium';
+    } else if (gridState === 'medium' && direction === 'grow') {
+      gridState = 'large';
+      direction = 'shrink';
+    }
+    updateGrid();
+  }
+
+  zoomBtn.onclick = toggleGridSize;
+
+  prevBtn.onclick = () => {
+    currentIndex = (currentIndex - 1 + IMAGES.length) % IMAGES.length;
+    openLightbox(IMAGES[currentIndex]);
+  };
+
+  nextBtn.onclick = () => {
+    currentIndex = (currentIndex + 1) % IMAGES.length;
+    openLightbox(IMAGES[currentIndex]);
+  };
+
+  closeBtn.onclick = () => {
+    lightbox.classList.remove('open');
+    lightVideo.pause();
+    lightVideo.src = '';
+  };
+  
+  lightbox.onclick = (e) => { 
+    if (e.target === lightbox) {
+      lightbox.classList.remove('open');
+      lightVideo.pause();
+      lightVideo.src = '';
+    }
+  };
+  
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    
+    if (e.key === 'Escape') {
+      lightbox.classList.remove('open');
+      lightVideo.pause();
+      lightVideo.src = '';
+    }
+    if (e.key === 'ArrowLeft') prevBtn.click();
+    if (e.key === 'ArrowRight') nextBtn.click();
+  });
+
+  updateGrid();
+})();
+</script>
+</body>
+</html>
