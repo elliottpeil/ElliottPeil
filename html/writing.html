@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Writing</title>
+  <style>
+    /* Standalone styles for writing.html only */
+    :root {
+      --bg:#ffffff;
+      --text:#0b0b0b;
+      --muted:#757575;
+      --tile:#fafafa;
+      --tile-strong:#f3f3f3;
+      --shadow:0 10px 28px rgba(0,0,0,.07);
+      --radius:16px;
+      --gap:14px;
+      --maxw:1100px;
+    }
+
+    * { 
+      box-sizing: border-box;
+      font-weight: normal;
+    }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    section {
+      width: 100%;
+      max-width: var(--maxw);
+      margin: 0px auto 0;
+      padding: 0 16px;
+      text-align: center;
+    }
+
+    main.content {
+      width: 100%;
+      max-width: var(--maxw);
+      margin: 0px auto 0;
+      padding: 0 16px;
+      text-align: center;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      text-align: center;
+      width: 100%;
+      font-weight: normal;
+    }
+
+    .section-link {
+      cursor: pointer;
+      font-size: 2.2rem;
+      color: var(--text);
+      text-decoration: none;
+      margin: 0;
+      padding: 4px 0;
+      display: inline-block;
+      font-weight: 200;
+    }
+
+    .section-link:hover {
+      background: linear-gradient(180deg, #262626b1, #070707c5);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      font-style: italic;
+    }
+
+    /* Writing-specific styles */
+    .stories details {
+      border: 0;
+      padding: 12px 0;
+      margin: 8px 0;
+    }
+
+    .stories details, .stories details[open], .stories .story, .stories .story-summary {
+      box-shadow: none;
+      outline: none;
+      background: transparent;
+    }
+
+    .stories details:last-child { border-bottom: 0; }
+
+    .story-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      list-style: none;
+      padding: 8px 0;
+    }
+
+    .category-summary {
+      cursor: pointer;
+      list-style: none;
+      display: block;
+      text-align: center;
+      padding: 14px 18px;
+      margin: 12px 0 6px;
+      font-size: 2.2rem;
+      color: var(--text);
+      font-weight: inherit;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-summary:hover {
+      background: linear-gradient(180deg, #262626b1, #070707c5);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      font-style: italic;
+    }
+
+    .category > summary h3 {
+      margin: 0;
+      font-size: 2.2rem;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+      font-weight: 300;
+      transition: all .25s ease;
+    }
+
+    .empty-note { 
+      color: var(--muted, #757575); 
+      margin: 8px 0 0; 
+    }
+
+    .story-title {
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+      position: relative;
+      overflow: hidden;
+      color: var(--text);
+    }
+
+    .story-blurb { 
+      color: var(--muted, #757575); 
+      font-size: 0.9rem; 
+      font-weight: 300;
+    }
+
+    details[open] .story-title,
+    .story-title:hover { 
+      background: linear-gradient(180deg, #2b2b2b, #000); 
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      color: transparent; 
+      -webkit-text-fill-color: transparent; 
+      font-style: italic;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .story-body {
+      margin-top: 12px;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .story-body p { 
+      margin: 0 0 12px; 
+    }
+
+    .category {
+      border: 0;
+      outline: 0;
+      background: transparent;
+      box-shadow: none;
+      margin: 0 0 18px 0;
+      padding: 8px 0;
+    }
+
+    .category > summary h2 { 
+      margin: 0; 
+    }
+
+    .story {
+      border: none !important;
+      margin: 10px 0;
+      padding: 0;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+
+    /* Hide disclosure triangles */
+    summary::-webkit-details-marker { display: none !important; }
+    summary::marker { display: none !important; }
+    details > summary { list-style-type: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { display: none; }
+
+
+  </style>
+</head>
+
+<body>
+
+  <p style="text-align:center;margin: 20px 0 0;padding-top: 35px;padding-bottom: 20px;">
+    <a href="../index.html">&lt; Home</a>
+  </p>
+
+  <main class="content">
+    <section class="stories">
+      <!-- FICTION (collapsed by default) -->
+      <details class="category" id="fiction">
+        <summary><h2 class="section-link">Fiction</h2></summary>
+        
+        <!-- Commenting out stories until content is ready
+        <details class="story">
+          <summary class="story-summary" data-title="FANTASY">
+            <strong class="story-title">FANTASY</strong>
+            <span class="story-blurb">Campfire talk spirals into a tense, unsettling tale.</span>
+          </summary>
+          <div class="story-body">
+            
+          </div>
+        </details>
+
+        <details class="story">
+          <summary class="story-summary" data-title="Signal">
+            <strong class="story-title">Signal</strong>
+            <span class="story-blurb">Listening for meaning inside the static.</span>
+          </summary>
+          <div class="story-body">
+            <p>The radio hissed like a sleeping animal. I kept the volume low, listening for the thin silver thread inside the noise. The room had the stillness of a photograph—mug half-drunk, window cracked, dust making slow planets in a shaft of light. When the signal finally came it wasn't words, not exactly. More like a shape. Something you feel in your teeth. Enough to make me answer out loud.</p>
+            <p>Outside, two bikes leaned against the fence as if they'd been riding together all their lives and just stopped for air. I thought of calling you and letting the phone ring until the static learned my name. Instead I tuned a hair to the left and waited for the world to decide how it wanted to speak.</p>
+          </div>
+        </details>
+        -->
+        
+        <p class="empty-note">no writing</p>
+      </details>
+
+      <!-- NONFICTION (collapsed by default) -->
+      <details class="category" id="nonfiction">
+        <summary><h2 class="section-link">Nonfiction</h2></summary>
+        
+        <!-- Commenting out stories until content is ready
+        <details class="story">
+          <summary class="story-summary" data-title="Errand List">
+            <strong class="story-title">Errand List</strong>
+            <span class="story-blurb">Small-town rhythms, one grocery aisle at a time.</span>
+          </summary>
+          <div class="story-body">
+            <p>I drove the long way to the hardware store because the light looks better down Main after noon. The clerk asked if I needed help and I said no, which was true and also a habit. I bought sandpaper, a plug adapter, and a tiny plant I didn't plan on but carried like an apology back to the car.</p>
+            <p>At the grocery, Linda from the post office told me they finally fixed the scale, like a secret. I nodded the way neighbors nod—agreement first, meaning later. The list stayed folded in my pocket. I remembered the milk and forgot the bagels and felt, for a minute in the parking lot, that this was exactly the right ratio.</p>
+          </div> 
+        </details>
+        -->
+        
+        <p class="empty-note">no writing</p>
+      </details>
+    </section>
+  </main>
+
+</body>
+</html>
